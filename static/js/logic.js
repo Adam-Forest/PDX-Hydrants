@@ -1,0 +1,70 @@
+var hydrantIcon = new L.Icon({
+  iconUrl: './static/images/marker-icon-2x-hydrant.png',
+  shadowUrl: './static/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+// Adding tile layer to the map
+var streets = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+  attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+  maxZoom: 18,
+  id: "mapbox.streets",
+  accessToken: API_KEY
+});
+
+var light = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+  attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+  maxZoom: 18,
+  id: "mapbox.light",
+  accessToken: API_KEY
+});
+
+var dark = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+  attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+  maxZoom: 18,
+  id: "mapbox.dark",
+  accessToken: API_KEY
+});
+
+var baseMaps = {
+  Streets: streets,
+  Light: light,
+  Dark: dark
+};
+
+// Creating map object
+var myMap = L.map("map", {
+  center: [45.5051, -122.6750],
+  zoom: 11,
+  layers: streets
+});
+
+var link = "./static/data/Fire_Hydrants.geojson"
+var url = "https://opendata.arcgis.com/datasets/05b80ae566c64af9990e9733773a52a8_50.geojson"
+// Grab data with d3
+// d3.json(APILink, function(data) {
+
+var markers = L.markerClusterGroup();
+// Grab the data with d3
+d3.json(url, function (response) {
+  // d3.json(link, function (response) {
+  console.log(response);
+  // Create a new marker cluster group
+
+  markers.addLayer(L.geoJson(response, {
+    pointToLayer: function (feature, latlng) {
+              return L.marker(latlng, {icon: hydrantIcon});
+      },
+    onEachFeature: function (feature, layer) {
+      layer.bindPopup(`<h1>Hydrant # ${feature.properties.ID}</h1><h2>Owner: ${feature.properties.OWNER}</h2>`);
+    }
+  }));
+
+  myMap.addLayer(markers);
+
+  L.control.layers(baseMaps).addTo(myMap);
+});
+
