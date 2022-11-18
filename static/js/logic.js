@@ -49,7 +49,7 @@ var url = "https://opendata.arcgis.com/datasets/05b80ae566c64af9990e9733773a52a8
 
 var markers = L.markerClusterGroup();
 // Grab the data with d3
-d3.json(url, function (response) {
+d3.json(link, function (response) {
   // d3.json(link, function (response) {
   console.log(response);
   // Create a new marker cluster group
